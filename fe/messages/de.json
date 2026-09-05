@@ -1,0 +1,88 @@
+{
+  "Sidebar": {
+    "blurb": "Resume ist eine KI. Sie antwortet aus Oleksiis Lebenslauf und den Notizen, die er darum herum gesammelt hat — und sagt es, wenn etwas nicht darin steht.",
+    "startWith": "Beginne mit",
+    "disclaimer": "Ein Gespräch pro Tab, es bleibt in diesem Tab und ist weg, sobald du ihn schließt. Auf dem Server wird nichts gespeichert."
+  },
+  "Starters": {
+    "strongest": "Worin ist er am stärksten?",
+    "leadership": "Kann er ein Team führen?",
+    "chaos": "Wie geht er mit einem Projekt im Chaos um?",
+    "craft": "Was bedeutet guter Code für ihn?",
+    "learning": "Wie lernt er eine neue Technologie?",
+    "outsideWork": "Wie ist er außerhalb der Arbeit?"
+  },
+  "EmptyState": {
+    "eyebrow": "Frag den Lebenslauf alles",
+    "title": "Was kann Oleksii — und was nicht?",
+    "subtitle": "Eine Frage nach der anderen. Der Assistent sucht erst in seinem Lebenslauf und zeigt dir dann, welche Stellen er verwendet hat."
+  },
+  "Composer": {
+    "placeholder": "Frag nach seinen Fähigkeiten, Lücken oder Projekten…",
+    "ariaLabel": "Frag nach Oleksii",
+    "hint": "Enter zum Senden · ⇧Enter neue Zeile · ↑ letzte Frage · Esc stoppt",
+    "tooLong": "Das überschreitet das Limit von {limit} Zeichen.",
+    "send": "Senden",
+    "stop": "Generierung stoppen"
+  },
+  "Chat": {
+    "searching": "Durchsucht den Lebenslauf…",
+    "thinking": "Denkt nach…",
+    "groundedIn": "Gestützt auf",
+    "noAnswer": "Es kam keine Antwort zurück. Formuliere die Frage um oder wähle ein anderes Modell.",
+    "unfinished": "Die Antwort wurde nicht fertig.",
+    "connectionLost": "Die Antwort wurde nicht fertig — prüfe deine Verbindung und versuch es erneut.",
+    "stopped": "Gestoppt, bevor eine Antwort kam.",
+    "tryAgain": "Erneut versuchen",
+    "switchModel": "Modell wechseln"
+  },
+  "ModelPicker": {
+    "label": "Modell",
+    "loading": "Wird geladen…",
+    "loadingLabel": "Modelle werden geladen…",
+    "fallbackLabel": "Standardmodell",
+    "noKey": "kein Key"
+  },
+  "TopControls": {
+    "language": "Sprache",
+    "switchToLight": "Zum hellen Design wechseln",
+    "switchToDark": "Zum dunklen Design wechseln"
+  },
+  "Status": {
+    "notIngested": "Die Wissensbasis wurde noch nicht eingelesen — die Antworten sind eingeschränkt.",
+    "unreachable": "Das Backend erreicht seine Wissensbasis gerade nicht."
+  },
+  "CookieConsent": {
+    "banner": {
+      "title": "Cookies",
+      "description": "Diese Seite nutzt Analyse-Cookies, um Besuche zu zählen und zu sehen, welche Seiten gelesen werden. Gespeichert wird erst, wenn Sie zustimmen.",
+      "learnMore": "Mehr erfahren"
+    },
+    "settings": {
+      "title": "Cookie-Einstellungen",
+      "description": "Wählen Sie, was gemessen werden darf. Sie können das jederzeit ändern.",
+      "required": "Erforderlich",
+      "privacyPolicy": "Datenschutzerklärung"
+    },
+    "categories": {
+      "necessary": {
+        "title": "Erforderlich",
+        "description": "Merkt sich Sprache und Theme. Bleibt nur in Ihrem Browser und wird nirgendwohin gesendet."
+      },
+      "analytics": {
+        "title": "Analyse",
+        "description": "Google Analytics: Seitenaufrufe und ungefähre Besucherzahlen. Aus, bis Sie es einschalten."
+      }
+    },
+    "actions": {
+      "acceptAll": "Akzeptieren",
+      "rejectAll": "Ablehnen",
+      "customize": "Anpassen",
+      "save": "Speichern",
+      "close": "Schließen"
+    },
+    "trigger": {
+      "label": "Cookie-Einstellungen"
+    }
+  }
+}

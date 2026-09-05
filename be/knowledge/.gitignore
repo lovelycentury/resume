@@ -1,0 +1,5 @@
+# The knowledge base is private, operator-supplied input — like .env.
+# Only the *.example.md templates are tracked; real content never gets committed.
+# `pnpm ingest` reads every *.md here except *.example.md.
+*.md
+!*.example.md

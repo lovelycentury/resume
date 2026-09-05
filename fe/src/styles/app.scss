@@ -1,0 +1,103 @@
+// App-level layout. Component styling lives in co-located
+// *.module.scss files; design tokens come from @okkly/design-system.
+
+@use "./theme";
+
+:root {
+  // The specular edge of the glass chrome (see styles/_glass.scss). Kept here
+  // rather than in the mixin because both surfaces place it on a different side.
+  // Both of these flip in `_theme.scss`: they encode where the light comes from,
+  // which a palette swap alone cannot express.
+  --app-glass-highlight: rgb(255 255 255 / 7%);
+  --app-chrome-shadow: 0 -12px 32px -16px rgb(0 0 0 / 55%);
+
+  // Radii and the banner's column, needed by the vendored CookieConsent kit (see
+  // styles/_kit.scss). Values match the profile app's `--profile-radius-*`.
+  --app-radius-sm: 0.625rem;
+  --app-radius-md: 0.875rem;
+  --app-radius-lg: 1.25rem;
+  --app-content-width: 1120px;
+  --app-shadow-header: 0 0.5rem 1.5rem -0.5rem rgb(0 0 0 / 30%);
+
+  --app-sidebar-width: 300px;
+  --app-reading-width: 780px;
+  --app-gutter: 24px;
+  --app-composer-max: 780px;
+}
+
+* {
+  box-sizing: border-box;
+}
+
+html,
+body,
+#root {
+  height: 100%;
+}
+
+body {
+  margin: 0;
+  background: var(--okkly-bg-canvas);
+  color: var(--okkly-text-primary);
+  font-family:
+    "Inter",
+    ui-sans-serif,
+    system-ui,
+    -apple-system,
+    "Segoe UI",
+    sans-serif;
+  -webkit-font-smoothing: antialiased;
+}
+
+// The ambient scene is <AnimatedBackground> (see App.tsx); the shell only has to
+// stack above it.
+.app-shell {
+  position: relative;
+  display: flex;
+  min-height: 100%;
+  isolation: isolate;
+}
+
+// On phones the shell is exactly one viewport tall and the transcript is the only thing
+// that scrolls, so the document itself must not — otherwise the page scrolls *and* the
+// transcript does, and the composer drifts away with the page.
+@media (max-width: 900px) {
+  body {
+    overflow: hidden;
+    // Kills the rubber-band drag that would otherwise peel the whole page off the top.
+    overscroll-behavior: none;
+  }
+}
+
+// Thin, unobtrusive scrollbars for the transcript.
+* {
+  scrollbar-width: thin;
+  scrollbar-color: var(--okkly-border-strong) transparent;
+}
+
+// ------------------------------------------------------------------ theme ---
+// `data-theme` is an explicit pick; without it the OS preference decides. Both are
+// set before first paint by the bootstrap script in index.html, so neither the
+// palette nor the sky ever flashes the wrong way round.
+//
+// The `dark` class is the design system's own switch (`styles/root.scss`): it sets
+// `color-scheme` and drops the shadows that only make sense on a light surface. The
+// bootstrap keeps it in step with `data-theme`.
+
+html[data-theme="light"] {
+  @include theme.light-tokens;
+}
+
+html[data-theme="light"] .app-shell__background {
+  @include theme.light-scene;
+}
+
+@media (prefers-color-scheme: light) {
+  html:not([data-theme="dark"]) {
+    @include theme.light-tokens;
+  }
+
+  html:not([data-theme="dark"]) .app-shell__background {
+    @include theme.light-scene;
+  }
+}

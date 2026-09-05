@@ -1,0 +1,82 @@
+.root {
+  margin: auto 0;
+  padding: 24px 0 40px;
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  gap: 14px;
+}
+
+.eyebrow {
+  margin: 0;
+  letter-spacing: 0.18em;
+}
+
+.title {
+  margin: 0;
+  max-width: 18ch;
+  line-height: 1.1;
+}
+
+.subtitle {
+  margin: 0;
+  max-width: 52ch;
+  line-height: 1.55;
+}
+
+.prompts {
+  margin-top: 10px;
+  display: flex;
+  flex-wrap: wrap;
+  gap: 10px;
+}
+
+.prompt {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  padding: 10px 14px;
+  border: 1px solid var(--okkly-border-default);
+  border-radius: 999px;
+  background: var(--okkly-glass-fill);
+  color: var(--okkly-text-secondary);
+  font: inherit;
+  font-size: 0.9375rem;
+  cursor: pointer;
+  transition:
+    border-color 0.15s ease,
+    color 0.15s ease,
+    background 0.15s ease,
+    transform 0.15s ease;
+}
+
+.prompt:hover:not(:disabled) {
+  border-color: var(--okkly-accent-primary);
+  color: var(--okkly-text-primary);
+  background: var(--okkly-glass-fill-strong);
+  transform: translateY(-1px);
+}
+
+.prompt:disabled {
+  opacity: 0.5;
+  cursor: default;
+}
+
+.go {
+  opacity: 0;
+  transition: opacity 0.15s ease;
+}
+
+.prompt:hover:not(:disabled) .go {
+  opacity: 1;
+}
+
+@media (max-width: 900px) {
+  .root {
+    margin-top: 8px;
+  }
+
+  .title {
+    font-size: 1.75rem;
+  }
+}

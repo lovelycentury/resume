@@ -1,0 +1,26 @@
+.root {
+  position: fixed;
+  z-index: 44;
+  backdrop-filter: blur(4px);
+  background: rgb(0 0 0 / 50%);
+  inset: 0;
+  animation: fade 300ms ease-in-out both;
+
+  &[data-clickable] {
+    cursor: pointer;
+  }
+
+  @media (prefers-reduced-motion: reduce) {
+    animation: none;
+  }
+}
+
+@keyframes fade {
+  from {
+    opacity: 0;
+  }
+
+  to {
+    opacity: 1;
+  }
+}

@@ -1,0 +1,135 @@
+# Dev environment — run once, then edit and it hot-reloads.
+#
+#   cd apps/resume
+#   cp be/.env.example be/.env                              # fill GOOGLE_GENERATIVE_AI_API_KEY
+#   cp be/knowledge/cv.example.md       be/knowledge/cv.md   # your real content (gitignored)
+#   cp be/knowledge/personal.example.md be/knowledge/personal.md
+#   docker compose -f docker-compose.dev.yml up --build      # first run builds the image
+#   docker compose -f docker-compose.dev.yml --profile ingest run --rm ingest   # embed the CV
+#
+#   → frontend  http://localhost:5173   (Vite HMR)
+#   → backend   http://localhost:5300   (mastra dev, re-bundles on save)
+#   → libSQL    http://localhost:8080   (vector store, persistent volume)
+#
+# Only `{be,fe}/src` (+ a few configs + be/knowledge) are bind-mounted.
+# Editing those hot-reloads. Changing a package.json / adding a dep → re-run with
+# `--build`. Editing a workspace package like @okkly/react is not watched here.
+
+name: resume-dev
+
+networks:
+  resume-dev:
+
+volumes:
+  libsql_data: # vector index
+  be_data: # conversation-state sqlite file (NOT .mastra — see the be service)
+
+x-logging: &logging
+  logging:
+    driver: json-file
+    options:
+      max-size: "10m"
+      max-file: "3"
+
+services:
+  # Vector store as a real service. Conversation state stays on an embedded file
+  # (be_data volume) — the server's hrana protocol fails @mastra/libsql's
+  # parallel schema init with SQLITE_SCHEMA on first boot.
+  libsql:
+    image: ghcr.io/tursodatabase/libsql-server:v0.24.32
+    restart: unless-stopped
+    environment:
+      SQLD_NODE: primary
+    volumes:
+      - libsql_data:/var/lib/sqld
+    ports:
+      - "8080:8080"
+    healthcheck:
+      # No wget/curl/nc in the image — bash /dev/tcp, same trick as ops/ iam.
+      test:
+        [
+          "CMD-SHELL",
+          "bash -c 'exec 3<>/dev/tcp/127.0.0.1/8080; printf \"GET /health HTTP/1.1\\r\\nHost: x\\r\\nConnection: close\\r\\n\\r\\n\" >&3; grep -q \"200 OK\" <&3'",
+        ]
+      interval: 10s
+      timeout: 3s
+      retries: 5
+      start_period: 10s
+    networks: [resume-dev]
+    <<: *logging
+
+  be:
+    build:
+      context: .
+      dockerfile: Dockerfile.dev
+    working_dir: /repo
+    command: pnpm --filter @okkly/resume-be dev
+    env_file:
+      - path: ./be/.env
+        required: false
+    environment:
+      NODE_ENV: development
+      PORT: "5300"
+      VECTOR_DB_URL: http://libsql:8080
+      STORAGE_DB_URL: file:/data/resume-storage.db
+      # mastra dev's watcher needs polling across the macOS/Windows bind mount.
+      CHOKIDAR_USEPOLLING: "true"
+    volumes:
+      - ./be/src:/repo/be/src
+      - ./be/knowledge:/repo/be/knowledge
+      # Conversation state only. `.mastra/` is deliberately NOT a volume: it holds
+      # mastra dev's bundle cache and its `dev.lock`, and a lock surviving a dead
+      # container makes the next `up` refuse to start ("PID N is still active").
+      - be_data:/data
+    ports:
+      - "5300:5300"
+    depends_on:
+      libsql:
+        condition: service_healthy
+    networks: [resume-dev]
+    <<: *logging
+
+  fe:
+    build:
+      context: .
+      dockerfile: Dockerfile.dev
+    working_dir: /repo
+    command: pnpm --filter @okkly/resume-fe dev
+    environment:
+      # Vite proxies /be/* here; also flips on polling for the bind mount.
+      VITE_API_TARGET: http://be:5300
+      VITE_DEV_CONTAINER: "1"
+    volumes:
+      - ./fe/src:/repo/fe/src
+      - ./fe/index.html:/repo/fe/index.html
+      - ./fe/vite.config.ts:/repo/fe/vite.config.ts
+      - ./fe/tsconfig.json:/repo/fe/tsconfig.json
+    ports:
+      - "5173:5173"
+    depends_on:
+      - be
+    networks: [resume-dev]
+    <<: *logging
+
+  # One-shot: embeds knowledge/*.md into the libSQL vector store.
+  #   docker compose -f docker-compose.dev.yml --profile ingest run --rm ingest
+  ingest:
+    profiles: ["ingest"]
+    build:
+      context: .
+      dockerfile: Dockerfile.dev
+    working_dir: /repo
+    command: pnpm --filter @okkly/resume-be ingest
+    env_file:
+      - path: ./be/.env
+        required: false
+    environment:
+      VECTOR_DB_URL: http://libsql:8080
+    volumes:
+      - ./be/src:/repo/be/src
+      - ./be/knowledge:/repo/be/knowledge
+    depends_on:
+      libsql:
+        condition: service_healthy
+    networks: [resume-dev]
+    <<: *logging

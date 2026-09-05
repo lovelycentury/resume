@@ -1,0 +1,88 @@
+{
+  "Sidebar": {
+    "blurb": "Resume is an AI. It answers from Oleksii's résumé and the notes he's added around it — and says so when something isn't there.",
+    "startWith": "Start with",
+    "disclaimer": "One conversation per tab, kept in this tab and gone when you close it. Nothing is stored on the server."
+  },
+  "Starters": {
+    "strongest": "What is he strongest at?",
+    "leadership": "Can he lead a team?",
+    "chaos": "How does he handle a project in chaos?",
+    "craft": "What does good code mean to him?",
+    "learning": "How does he learn a new technology?",
+    "outsideWork": "What's he like outside work?"
+  },
+  "EmptyState": {
+    "eyebrow": "Ask the résumé anything",
+    "title": "What can Oleksii do — and what can't he?",
+    "subtitle": "One question at a time. The assistant retrieves from his CV before it answers, and shows you which parts it used."
+  },
+  "Composer": {
+    "placeholder": "Ask about his skills, gaps, or projects…",
+    "ariaLabel": "Ask about Oleksii",
+    "hint": "Enter to send · ⇧Enter new line · ↑ last question · Esc stop",
+    "tooLong": "That's over the {limit}-character limit.",
+    "send": "Send",
+    "stop": "Stop generating"
+  },
+  "Chat": {
+    "searching": "Searching the CV…",
+    "thinking": "Thinking…",
+    "groundedIn": "Grounded in",
+    "noAnswer": "No answer came back. Try rephrasing, or pick another model.",
+    "unfinished": "The answer didn't finish.",
+    "connectionLost": "The answer didn't finish — check your connection and try again.",
+    "stopped": "Stopped before any answer came back.",
+    "tryAgain": "Try again",
+    "switchModel": "Switch model"
+  },
+  "ModelPicker": {
+    "label": "Model",
+    "loading": "Loading models…",
+    "loadingLabel": "Loading models…",
+    "fallbackLabel": "Default model",
+    "noKey": "no key"
+  },
+  "TopControls": {
+    "language": "Language",
+    "switchToLight": "Switch to light theme",
+    "switchToDark": "Switch to dark theme"
+  },
+  "Status": {
+    "notIngested": "The knowledge base hasn't been ingested yet — answers will be limited.",
+    "unreachable": "The backend can't reach its knowledge base right now."
+  },
+  "CookieConsent": {
+    "banner": {
+      "title": "Cookies",
+      "description": "This site uses analytics cookies to count visits and see which pages get read. Nothing is stored until you agree.",
+      "learnMore": "Learn more"
+    },
+    "settings": {
+      "title": "Cookie settings",
+      "description": "Choose what may be measured. You can change this at any time.",
+      "required": "Required",
+      "privacyPolicy": "Privacy policy"
+    },
+    "categories": {
+      "necessary": {
+        "title": "Necessary",
+        "description": "Keeps your language and theme choice. Stored in your browser only, never sent anywhere."
+      },
+      "analytics": {
+        "title": "Analytics",
+        "description": "Google Analytics: page views and rough visitor counts. Off until you turn it on."
+      }
+    },
+    "actions": {
+      "acceptAll": "Accept",
+      "rejectAll": "Reject",
+      "customize": "Customize",
+      "save": "Save",
+      "close": "Close"
+    },
+    "trigger": {
+      "label": "Cookie settings"
+    }
+  }
+}

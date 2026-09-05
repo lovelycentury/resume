@@ -1,0 +1,118 @@
+@use "styles/kit" as m;
+
+.title {
+  display: flex;
+  align-items: flex-start;
+  gap: 0.875rem;
+}
+
+.glyph {
+  display: inline-flex;
+  width: 2.25rem;
+  height: 2.25rem;
+  flex-shrink: 0;
+  align-items: center;
+  justify-content: center;
+  border-radius: 50%;
+  background: color-mix(in srgb, var(--okkly-accent-primary) 14%, transparent);
+  color: var(--okkly-accent-primary);
+}
+
+.heading {
+  display: flex;
+  flex-direction: column;
+  gap: 0.125rem;
+}
+
+.subtitle {
+  color: var(--okkly-text-muted);
+  font-weight: 400;
+  @include m.type(body-sm);
+}
+
+.content {
+  max-height: 60vh;
+}
+
+.list {
+  display: flex;
+  flex-direction: column;
+  margin: 0;
+  gap: 0.75rem;
+  padding: 0;
+  list-style: none;
+}
+
+.category {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: 1rem;
+  padding: 1rem;
+  transition:
+    border-color 160ms ease,
+    background-color 160ms ease;
+  @include m.surface(var(--app-radius-md));
+
+  &[data-enabled] {
+    border-color: color-mix(in srgb, var(--okkly-accent-primary) 30%, transparent);
+    background: color-mix(in srgb, var(--okkly-accent-primary) 6%, var(--okkly-bg-surface));
+  }
+
+  @media (prefers-reduced-motion: reduce) {
+    transition: none;
+  }
+}
+
+.categoryText {
+  display: flex;
+  flex-direction: column;
+  gap: 0.25rem;
+}
+
+.categoryTitle {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  color: var(--okkly-text-primary);
+  font-weight: 600;
+  @include m.type(label-md);
+}
+
+.badge {
+  padding: 0.0625rem 0.4375rem;
+  border-radius: var(--app-radius-sm);
+  background: var(--okkly-bg-inset);
+  color: var(--okkly-text-muted);
+  font-weight: 500;
+  @include m.type(label-sm);
+}
+
+.categoryDescription {
+  max-width: 46ch;
+  margin: 0;
+  color: var(--okkly-text-secondary);
+  @include m.type(body-sm);
+}
+
+.actions {
+  flex-wrap: wrap;
+  gap: 0.5rem;
+}
+
+.policy {
+  margin: 0;
+  padding: 0 1.5rem 1.25rem;
+  text-align: center;
+  @include m.type(caption);
+}
+
+.link {
+  color: var(--okkly-text-muted);
+  text-decoration: underline;
+  text-underline-offset: 0.25em;
+
+  &:hover {
+    color: var(--okkly-text-primary);
+  }
+}

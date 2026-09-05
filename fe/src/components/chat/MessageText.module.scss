@@ -1,0 +1,62 @@
+.paragraph {
+  margin: 0 0 0.75em;
+  line-height: 1.62;
+  white-space: pre-wrap;
+  word-break: break-word;
+}
+
+.paragraph:last-child {
+  margin-bottom: 0;
+}
+
+.list {
+  margin: 0 0 0.75em;
+  padding-left: 1.25em;
+  line-height: 1.6;
+  display: flex;
+  flex-direction: column;
+  gap: 0.25em;
+}
+
+.list:last-child {
+  margin-bottom: 0;
+}
+
+.code {
+  font-family: ui-monospace, "SF Mono", "Menlo", monospace;
+  font-size: 0.9em;
+  padding: 0.1em 0.35em;
+  border-radius: 5px;
+  background: var(--okkly-glass-fill-strong);
+  border: 1px solid var(--okkly-border-subtle);
+}
+
+// Streamed text arrives a word at a time; each one fades up as it mounts (see
+// `renderWords`). Only opacity is animated — `transform` and `filter` do nothing on an
+// inline box without switching it to inline-block, which would stop long words from
+// breaking mid-token, and a filter would additionally give every word in the transcript
+// its own paint layer.
+//
+// `both` holds the from-state during the (zero) delay, so a word is never painted at
+// full opacity for one frame before the animation takes over.
+.word {
+  animation: word-in 260ms ease-out both;
+}
+
+@keyframes word-in {
+  from {
+    opacity: 0;
+  }
+
+  to {
+    opacity: 1;
+  }
+}
+
+// Text appearing letter-by-letter is exactly the kind of motion this setting is meant
+// to switch off, so the words simply appear.
+@media (prefers-reduced-motion: reduce) {
+  .word {
+    animation: none;
+  }
+}

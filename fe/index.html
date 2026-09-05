@@ -1,0 +1,105 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <!-- `interactive-widget=resizes-content` asks the browser to shrink the layout when the
+         software keyboard opens, instead of overlaying it. Where it is honoured the composer
+         stays put on its own; `useViewportHeight` covers the browsers that ignore it. -->
+    <meta
+      name="viewport"
+      content="width=device-width, initial-scale=1, viewport-fit=cover, interactive-widget=resizes-content"
+    />
+    <meta name="color-scheme" content="dark light" />
+    <title>Ask Oleksii's résumé</title>
+    <meta
+      name="description"
+      content="A chat that answers questions about Oleksii Kryshtopa, grounded in his CV."
+    />
+
+    <!--
+      Same mark as apps/profile — one identity across both sites. Next builds these links
+      from its metadata API; a Vite SPA declares them itself. Files live in public/ and
+      are copied to the build root verbatim.
+    -->
+    <link rel="icon" href="/favicon.ico" sizes="any" />
+    <link rel="icon" type="image/png" sizes="16x16" href="/favicon-16x16.png" />
+    <link rel="icon" type="image/png" sizes="32x32" href="/favicon-32x32.png" />
+    <link rel="apple-touch-icon" sizes="180x180" href="/apple-touch-icon.png" />
+    <link rel="manifest" href="/site.webmanifest" />
+    <!--
+      Theme, before the first paint. This has to be a blocking inline script rather than
+      anything in the bundle: a module script is deferred, so the body would paint on the
+      wrong palette first and flash. Keep the storage key in step with src/lib/theme.ts.
+
+      `data-theme` drives the app's own token overrides; the `dark` class is the design
+      system's switch for `color-scheme` and its shadow set.
+    -->
+    <script>
+      (function () {
+        try {
+          var stored = localStorage.getItem("okkly-resume-theme");
+          var theme =
+            stored === "light" || stored === "dark"
+              ? stored
+              : window.matchMedia("(prefers-color-scheme: light)").matches
+                ? "light"
+                : "dark";
+          document.documentElement.setAttribute("data-theme", theme);
+          document.documentElement.classList.toggle("dark", theme === "dark");
+        } catch (e) {
+          document.documentElement.setAttribute("data-theme", "dark");
+          document.documentElement.classList.add("dark");
+        }
+      })();
+    </script>
+
+    <!--
+      Google Consent Mode v2 defaults. Google only honours a `consent default` that is
+      already in dataLayer when gtag.js fires, so this has to be a blocking script here —
+      a React effect runs far too late. Everything starts denied; a returning visitor's
+      stored decision is replayed instead, so an accepted state survives a reload and
+      repeat visits skip the `wait_for_update` hold.
+
+      Keep the storage key and version in step with src/lib/analytics.ts. gtag.js itself
+      is appended from there, in production builds only.
+    -->
+    <script>
+      (function () {
+        window.dataLayer = window.dataLayer || [];
+        window.gtag =
+          window.gtag ||
+          function () {
+            window.dataLayer.push(arguments);
+          };
+        var analytics = "denied";
+        try {
+          var stored = JSON.parse(localStorage.getItem("cookie-consent") || "null");
+          if (
+            stored &&
+            stored.hasConsented &&
+            stored.consentVersion === "1.0.0" &&
+            (!stored.expiresAt || new Date(stored.expiresAt) > new Date()) &&
+            stored.categories &&
+            stored.categories.analytics
+          ) {
+            analytics = "granted";
+          }
+        } catch (e) {}
+        window.gtag("consent", "default", {
+          ad_storage: "denied",
+          ad_user_data: "denied",
+          ad_personalization: "denied",
+          personalization_storage: "denied",
+          functionality_storage: "denied",
+          security_storage: "granted",
+          analytics_storage: analytics,
+          wait_for_update: 500,
+        });
+      })();
+    </script>
+  </head>
+  <body>
+    <div id="root"></div>
+    <script type="module" src="/src/main.tsx"></script>
+  </body>
+</html>

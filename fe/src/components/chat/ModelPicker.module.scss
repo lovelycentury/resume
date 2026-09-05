@@ -1,0 +1,113 @@
+// Reads as a label, not a control, until you reach for it — the send disc is the
+// only thing in the composer's toolbar that should pull the eye.
+.trigger {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  padding: 4px 2px;
+  border: none;
+  border-radius: 8px;
+  background: transparent;
+  color: var(--okkly-text-secondary);
+  font: inherit;
+  font-size: 0.875rem;
+  cursor: pointer;
+  transition: color 0.15s ease;
+}
+
+.trigger:hover:not(:disabled) {
+  color: var(--okkly-text-primary);
+}
+
+.trigger:disabled {
+  opacity: 0.6;
+  cursor: default;
+}
+
+.triggerLabel {
+  max-width: 24ch;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+// The paper caps itself at `--okkly-popover-max-width` (20rem). Model
+// descriptions are two lines at that width, so raise the cap here rather than
+// sizing `.menu` past it — a child wider than the paper just spills out of it.
+.paper {
+  --okkly-popover-max-width: min(21.25rem, calc(100vw - 2rem));
+}
+
+.menu {
+  // Fills whatever the paper allows, so the two can never disagree.
+  width: 100%;
+  max-height: 60vh;
+  overflow-y: auto;
+  padding: 6px;
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+}
+
+.loading {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 10px;
+  color: var(--okkly-text-muted);
+  font-size: 0.8125rem;
+}
+
+.option {
+  display: flex;
+  align-items: flex-start;
+  gap: 10px;
+  width: 100%;
+  padding: 10px 10px;
+  border: none;
+  border-radius: 10px;
+  background: transparent;
+  color: var(--okkly-text-primary);
+  font: inherit;
+  text-align: left;
+  cursor: pointer;
+  transition: background 0.12s ease;
+}
+
+.option:hover:not(:disabled) {
+  background: var(--okkly-glass-fill);
+}
+
+.option:disabled {
+  opacity: 0.45;
+  cursor: default;
+}
+
+.optionMain {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+  min-width: 0;
+  flex: 1 1 auto;
+}
+
+.optionName {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  font-size: 0.875rem;
+  font-weight: 500;
+}
+
+.optionDesc {
+  line-height: 1.4;
+}
+
+.badge {
+  padding: 1px 6px;
+  border-radius: 6px;
+  font-size: 0.6875rem;
+  font-weight: 400;
+  color: var(--okkly-feedback-warning);
+  background: color-mix(in srgb, var(--okkly-feedback-warning) 16%, transparent);
+}

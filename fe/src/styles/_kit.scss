@@ -1,0 +1,69 @@
+// SCSS helpers the vendored CookieConsent kit expects. It was authored against
+// `apps/profile/src/styles/_mixins.scss`, so the mixin names are kept identical — only
+// their innards are rebuilt on this app's tokens, which keeps the kit's own stylesheets a
+// one-line diff away from profile's and cheap to re-sync.
+
+@use "sass:list";
+@use "sass:map";
+@forward "@okkly/design-system/styles/breakpoints.scss";
+
+// The four steps the kit asks for. Profile reads these off its Figma type scale
+// (`--profile-*-size`); this app has no such scale, so the values are inlined at the
+// sizes the rest of its chrome already uses.
+$type-steps: (
+  body-sm: (
+    0.875rem,
+    1.57,
+  ),
+  label-md: (
+    0.9375rem,
+    1.33,
+  ),
+  label-sm: (
+    0.8125rem,
+    1.23,
+  ),
+  caption: (
+    0.8125rem,
+    1.38,
+  ),
+);
+
+@mixin type($step) {
+  $pair: map.get($type-steps, $step);
+
+  @if $pair == null {
+    @error "Unknown type step `#{$step}` — add it to $type-steps in styles/_kit.scss.";
+  }
+
+  font-size: list.nth($pair, 1);
+  line-height: list.nth($pair, 2);
+}
+
+/// Translucent surface.
+@mixin glass($radius: var(--app-radius-md)) {
+  border: 1px solid var(--okkly-glass-border);
+  border-radius: $radius;
+  background: var(--okkly-glass-fill);
+}
+
+/// Opaque panel.
+@mixin surface($radius: var(--app-radius-md)) {
+  border: 1px solid var(--okkly-border-subtle);
+  border-radius: $radius;
+  background: var(--okkly-bg-surface);
+}
+
+/// Small square glass control — the kit's close button.
+@mixin icon-button($size: 2.5rem, $radius: var(--app-radius-sm)) {
+  display: inline-flex;
+  width: $size;
+  height: $size;
+  align-items: center;
+  justify-content: center;
+  padding: 0;
+  color: var(--okkly-text-primary);
+  cursor: pointer;
+
+  @include glass($radius);
+}

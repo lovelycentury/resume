@@ -1,0 +1,19 @@
+// Apple-style material, shared by the two chrome surfaces (sidebar, composer bar).
+//
+// Two details separate this from plain translucency. The blur is paired with a
+// saturation boost, so the aurora drifting behind keeps its colour instead of
+// washing out to grey; and the tint stays thin (~40%) so there is something left
+// to see through — a 70% panel blurs an image nobody can make out anyway.
+//
+// `backdrop-filter` is missing in a few engines and switched off by some privacy
+// settings. Without the fallback the panel would degrade to a barely-legible 40%
+// wash over a moving background, so the @supports arm restores an opaque surface.
+@mixin material($tint, $opaque, $blur: 28px, $saturate: 180%) {
+  background: $tint;
+  backdrop-filter: blur($blur) saturate($saturate);
+  -webkit-backdrop-filter: blur($blur) saturate($saturate);
+
+  @supports not ((backdrop-filter: blur(1px)) or (-webkit-backdrop-filter: blur(1px))) {
+    background: $opaque;
+  }
+}

@@ -1,0 +1,147 @@
+.root {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+// The input card: a dark well over the animated sky, with the toolbar pinned to
+// its bottom-right corner (Figma: chat-hr / D2 · Conversation, node 92-53031).
+.box {
+  display: flex;
+  flex-direction: column;
+  min-height: 100px;
+  padding: 16px 16px 12px 18px;
+  border-radius: 18px;
+  border: 1px solid var(--okkly-border-subtle);
+  background: color-mix(in srgb, var(--okkly-bg-canvas) 78%, transparent);
+  backdrop-filter: blur(12px);
+  transition:
+    border-color 0.15s ease,
+    box-shadow 0.15s ease;
+}
+
+// Focus lights the card's edge in mint and pushes a soft bloom under it.
+.box:focus-within {
+  border-color: var(--okkly-accent-primary);
+  box-shadow: 0 0 24px -8px color-mix(in srgb, var(--okkly-accent-primary) 55%, transparent);
+}
+
+.boxError,
+.box.boxError:focus-within {
+  border-color: var(--okkly-feedback-danger);
+  box-shadow: none;
+}
+
+.textarea {
+  width: 100%;
+  border: none;
+  outline: none;
+  resize: none;
+  background: transparent;
+  color: var(--okkly-text-primary);
+  font: inherit;
+  font-size: 1rem;
+  line-height: 1.5;
+  max-height: 220px;
+}
+
+.textarea::placeholder {
+  color: var(--okkly-text-muted);
+}
+
+// Sits at the bottom of the card whatever the textarea's height.
+.toolbar {
+  display: flex;
+  align-items: center;
+  justify-content: flex-end;
+  gap: 12px;
+  margin-top: auto;
+  padding-top: 8px;
+}
+
+.counter {
+  margin-right: auto;
+  font-size: 0.75rem;
+  color: var(--okkly-text-muted);
+  font-variant-numeric: tabular-nums;
+}
+
+.counterError {
+  color: var(--okkly-feedback-danger);
+}
+
+.action {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  flex: 0 0 auto;
+  width: 44px;
+  height: 44px;
+  border-radius: 50%;
+  border: none;
+  cursor: pointer;
+  transition:
+    background 0.15s ease,
+    color 0.15s ease,
+    transform 0.1s ease;
+}
+
+.action:active:not(:disabled) {
+  transform: scale(0.96);
+}
+
+.actionSend {
+  background: var(--okkly-accent-primary);
+  color: var(--okkly-accent-contrast);
+}
+
+.actionSend:hover:not(:disabled) {
+  background: color-mix(in srgb, var(--okkly-accent-primary) 88%, white);
+}
+
+.actionSend:disabled {
+  background: var(--okkly-bg-surface-raised);
+  color: var(--okkly-text-muted);
+  cursor: default;
+}
+
+// Streaming: the same disc turns neutral and holds a stop square.
+.actionStop {
+  background: var(--okkly-bg-surface-raised);
+  border: 1px solid var(--okkly-border-default);
+  color: var(--okkly-text-primary);
+}
+
+.actionStop:hover {
+  border-color: var(--okkly-border-strong);
+}
+
+.stopGlyph {
+  width: 13px;
+  height: 13px;
+  border-radius: 3px;
+  background: currentColor;
+}
+
+.hint {
+  margin: 0;
+  padding: 0 2px;
+  font-size: 0.8125rem;
+  color: var(--okkly-text-muted);
+}
+
+@media (max-width: 900px) {
+  .box {
+    min-height: 88px;
+    padding: 14px 12px 10px 14px;
+  }
+
+  .action {
+    width: 40px;
+    height: 40px;
+  }
+
+  .hint {
+    font-size: 0.75rem;
+  }
+}

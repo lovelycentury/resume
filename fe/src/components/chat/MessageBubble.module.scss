@@ -1,0 +1,81 @@
+.userRow {
+  display: flex;
+  justify-content: flex-end;
+  width: 100%;
+}
+
+.userBubble {
+  max-width: 82%;
+  padding: 10px 15px;
+  border-radius: 18px 18px 4px 18px;
+  background: var(--okkly-accent-primary);
+  color: var(--okkly-accent-contrast);
+  font-size: 0.9375rem;
+  line-height: 1.5;
+  white-space: pre-wrap;
+  word-break: break-word;
+}
+
+.assistantRow {
+  display: flex;
+  gap: 12px;
+  width: 100%;
+}
+
+// Sized to the slot the mint "AI" avatar used to fill, so swapping the mark in did not
+// move the transcript's text column.
+.avatar {
+  --agent-mark-size: 36px;
+
+  flex: 0 0 auto;
+  margin-top: 2px;
+}
+
+.assistantBody {
+  min-width: 0;
+  flex: 1 1 auto;
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+  padding-top: 3px;
+}
+
+.answer {
+  font-size: 0.9375rem;
+  color: var(--okkly-text-primary);
+}
+
+.caret {
+  display: inline-block;
+  width: 2px;
+  height: 1.05em;
+  margin-left: 2px;
+  vertical-align: text-bottom;
+  background: var(--okkly-accent-primary);
+  animation: caret-blink 1s steps(1) infinite;
+}
+
+@keyframes caret-blink {
+  50% {
+    opacity: 0;
+  }
+}
+
+.empty {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+}
+
+.thinking {
+  display: inline-flex;
+  align-items: center;
+  padding: 6px 2px;
+  font-size: 0.9375rem;
+}
+
+@media (max-width: 900px) {
+  .userBubble {
+    max-width: 88%;
+  }
+}

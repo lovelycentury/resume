@@ -1,0 +1,127 @@
+# Local resume stack: a libSQL server + the RAG backend.
+#
+# The vector store is a real service here (libSQL in client/server mode), not the
+# embedded `file:` database the app defaults to. `src/rag/vector-store.ts` needs
+# no change — only the URL, set below to http://libsql:8080.
+#
+#   cd apps/resume
+#   cp be/.env.example be/.env                          # fill GOOGLE_GENERATIVE_AI_API_KEY
+#   cp be/knowledge/cv.example.md       be/knowledge/cv.md         # your real content,
+#   cp be/knowledge/personal.example.md be/knowledge/personal.md   # both gitignored
+#   docker compose up -d --build
+#   docker compose --profile ingest run --rm ingest     # embed knowledge/*.md
+#   curl localhost:5300/status                          # -> {"status":"ok",...}
+#
+# `fe` joins as its own service later.
+
+name: resume
+
+networks:
+  resume:
+
+volumes:
+  libsql_data: # vector index (served by the libsql container)
+  storage_data: # conversation state (embedded file, mounted into resume-be)
+
+x-logging: &logging
+  logging:
+    driver: json-file
+    options:
+      max-size: "10m"
+      max-file: "3"
+
+services:
+  # libSQL in server mode — holds only the vector index (LibSQLVector ->
+  # `resume_knowledge`). Conversation state stays on the embedded driver: the
+  # server's hrana protocol fails @mastra/libsql's parallel schema init with
+  # SQLITE_SCHEMA on first boot, and only that (storage) path does parallel DDL.
+  libsql:
+    image: ghcr.io/tursodatabase/libsql-server:v0.24.32
+    restart: unless-stopped
+    environment:
+      SQLD_NODE: primary
+    volumes:
+      - libsql_data:/var/lib/sqld
+    ports:
+      # Published so `pnpm ingest` / a client can also reach it from the host
+      # (VECTOR_DB_URL=http://127.0.0.1:8080).
+      - "8080:8080"
+    healthcheck:
+      # The image has no wget/curl/nc — bash /dev/tcp, same trick as ops/ iam.
+      test:
+        [
+          "CMD-SHELL",
+          "bash -c 'exec 3<>/dev/tcp/127.0.0.1/8080; printf \"GET /health HTTP/1.1\\r\\nHost: x\\r\\nConnection: close\\r\\n\\r\\n\" >&3; grep -q \"200 OK\" <&3'",
+        ]
+      interval: 10s
+      timeout: 3s
+      retries: 5
+      start_period: 10s
+    networks: [resume]
+    <<: *logging
+
+  resume-be:
+    build:
+      context: .
+      dockerfile: be/Dockerfile
+      target: runtime
+    restart: unless-stopped
+    # Secrets and optional provider keys. Absent file is fine — the app still
+    # boots as long as GOOGLE_GENERATIVE_AI_API_KEY is in the environment.
+    env_file:
+      - path: ./be/.env
+        required: false
+    environment:
+      NODE_ENV: production
+      PORT: "5300"
+      # Override the file: defaults from be/.env. Vector index -> the libsql
+      # service; conversation state -> a file on the storage_data volume.
+      VECTOR_DB_URL: http://libsql:8080
+      STORAGE_DB_URL: file:/app/data/resume-storage.db
+    volumes:
+      - storage_data:/app/data
+    ports:
+      - "5300:5300"
+    depends_on:
+      libsql:
+        condition: service_healthy
+    healthcheck:
+      # /models needs neither the vector store nor a real API key, so this goes
+      # green as soon as the HTTP server is up.
+      test:
+        [
+          "CMD",
+          "node",
+          "-e",
+          "fetch('http://127.0.0.1:5300/models').then(r=>process.exit(r.ok?0:1)).catch(()=>process.exit(1))",
+        ]
+      interval: 30s
+      timeout: 5s
+      retries: 3
+      start_period: 15s
+    networks: [resume]
+    <<: *logging
+
+  # One-shot ingest. Reuses the Dockerfile's `build` stage because that layer
+  # still has the sources and devDependencies (tsx); the runtime image does not.
+  #   docker compose --profile ingest run --rm ingest
+  ingest:
+    profiles: ["ingest"]
+    build:
+      context: .
+      dockerfile: be/Dockerfile
+      target: build
+    working_dir: /repo/be
+    env_file:
+      - path: ./be/.env
+        required: false
+    environment:
+      # ingest imports the vector store directly and never touches LibSQLStore,
+      # so STORAGE_DB_URL is left at its (unused) default.
+      VECTOR_DB_URL: http://libsql:8080
+    depends_on:
+      libsql:
+        condition: service_healthy
+    command: ["pnpm", "run", "ingest"]
+    networks: [resume]
+    <<: *logging

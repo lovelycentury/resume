@@ -1,0 +1,16 @@
+packages:
+  - be
+  - fe
+
+allowBuilds:
+  "@parcel/watcher": false
+  "@swc/core": false
+  esbuild: true
+  sass-embedded: true
+
+minimumReleaseAgeExclude:
+  - "@okkly/design-system@0.1.0"
+  - "@okkly/icons@0.1.0"
+  - "@okkly/react@0.1.0"
+  - '@okkly/helpers@0.1.0'
+  - '@okkly/react-hooks@0.1.0'

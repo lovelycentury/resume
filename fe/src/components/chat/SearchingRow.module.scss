@@ -1,0 +1,9 @@
+// No pill any more: the sweep marks these words as the live thing on screen, so a border
+// and a fill around them would only add a second frame to look at.
+.root {
+  display: inline-flex;
+  align-items: center;
+  padding: 6px 2px;
+  font-size: 0.875rem;
+  width: fit-content;
+}

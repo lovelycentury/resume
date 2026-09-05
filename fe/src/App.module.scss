@@ -1,0 +1,83 @@
+@use "./styles/glass";
+
+// Fixed behind the shell: the aurora field drifts while the transcript scrolls
+// over it, exactly as the profile site does it.
+.background {
+  position: fixed;
+  inset: 0;
+  z-index: 0;
+  pointer-events: none;
+}
+
+.sidebar {
+  position: relative;
+  z-index: 1;
+  flex: 0 0 var(--app-sidebar-width);
+  width: var(--app-sidebar-width);
+  // Brighter than `border-subtle`: on a translucent panel the hairline is the
+  // edge of the glass, so it catches light rather than dividing two flat fills.
+  border-right: 1px solid var(--okkly-glass-border);
+  // A highlight down the inner edge reads as thickness — the panel sits above
+  // the scene instead of being a hole cut into it.
+  box-shadow: inset -1px 0 0 var(--app-glass-highlight);
+
+  @include glass.material(
+    color-mix(in srgb, var(--okkly-bg-surface) 42%, transparent),
+    var(--okkly-bg-surface)
+  );
+}
+
+.main {
+  position: relative;
+  z-index: 1;
+  flex: 1 1 auto;
+  min-width: 0;
+  display: flex;
+  flex-direction: column;
+  height: 100vh;
+  height: 100dvh;
+}
+
+// Below this width the shell stacks and the sidebar becomes a compact top header.
+//
+// The composer has to stay on screen while the transcript scrolls, which means exactly
+// one scroll container on the page: ChatPanel's `.scroll`. Everything above it is sized,
+// never grown — a shell that can grow makes the *document* scroll instead, and the
+// composer rides off the bottom with it.
+@media (max-width: 900px) {
+  :global(.app-shell) {
+    // Pinned to the *visual* viewport, not laid out in flow: iOS overlays the software
+    // keyboard without resizing the page, then scrolls the whole document up so the
+    // focused composer clears it. A shell in normal flow rides off the top of the screen
+    // with that scroll. Fixed + `top: offsetTop` re-seats it over the visible strip; the
+    // height is that strip above the keyboard. `top` rather than `transform` on purpose:
+    // a transformed ancestor sends iOS Safari's text caret to the corner. Both vars come
+    // from hooks/useViewportHeight and match `0` / `100dvh` while no keyboard is open.
+    position: fixed;
+    top: var(--app-viewport-offset-top, 0px);
+    left: 0;
+    right: 0;
+    flex-direction: column;
+    height: var(--app-viewport-height, 100dvh);
+    min-height: 0;
+    overflow: hidden;
+  }
+
+  .sidebar {
+    // Fixed to its own content: the header keeps its size, the chat takes the rest.
+    flex: 0 0 auto;
+    width: 100%;
+    border-right: none;
+    border-bottom: 1px solid var(--okkly-glass-border);
+    // Stacked, the panel is a top bar: the light edge moves to its underside.
+    box-shadow: inset 0 -1px 0 var(--app-glass-highlight);
+  }
+
+  .main {
+    height: auto;
+    flex: 1 1 auto;
+    // Without this a flex item floors at its content's height, so a long transcript
+    // would stretch `.main` past the shell rather than scrolling inside it.
+    min-height: 0;
+  }
+}

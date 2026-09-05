@@ -1,0 +1,71 @@
+@use "../../styles/glass";
+
+.root {
+  display: flex;
+  flex-direction: column;
+  flex: 1 1 auto;
+  min-height: 0;
+}
+
+.scroll {
+  flex: 1 1 auto;
+  min-height: 0;
+  overflow-y: auto;
+  overscroll-behavior: contain;
+  padding: 32px var(--app-gutter) 16px;
+}
+
+.column {
+  width: 100%;
+  max-width: var(--app-reading-width);
+  margin: 0 auto;
+  display: flex;
+  flex-direction: column;
+  min-height: 100%;
+}
+
+// The list is measured on its own (its bottom is where the answer currently ends), so the
+// spacer has to sit outside it — hence this wrapper rather than a ref on the <ol>.
+.transcript {
+  display: flex;
+  flex-direction: column;
+  flex: 1 1 auto;
+  min-height: 0;
+}
+
+.spacer {
+  flex: 0 0 auto;
+}
+
+.composer {
+  flex: 0 0 auto;
+  position: relative;
+  padding: 12px var(--app-gutter) calc(16px + env(safe-area-inset-bottom));
+  border-top: 1px solid var(--okkly-glass-border);
+  // Top highlight + a soft shadow cast upward: the transcript scrolls *under*
+  // this bar, and the pair is what sells that depth once the fill is see-through.
+  box-shadow:
+    inset 0 1px 0 var(--app-glass-highlight),
+    var(--app-chrome-shadow);
+
+  @include glass.material(
+    color-mix(in srgb, var(--okkly-bg-canvas) 46%, transparent),
+    var(--okkly-bg-canvas)
+  );
+}
+
+.composerColumn {
+  width: 100%;
+  max-width: var(--app-composer-max);
+  margin: 0 auto;
+}
+
+@media (max-width: 900px) {
+  .scroll {
+    padding: 20px 16px 12px;
+  }
+
+  .composer {
+    padding: 10px 16px calc(12px + env(safe-area-inset-bottom));
+  }
+}

@@ -1,0 +1,32 @@
+@use "styles/kit" as m;
+
+.text {
+  padding: 0;
+  border: 0;
+  background: none;
+  color: var(--okkly-text-muted);
+  cursor: pointer;
+  // Buttons do not inherit type from their container; taking it explicitly
+  // lets the trigger sit inside the footer's caption row without standing out.
+  font: inherit;
+  text-decoration: underline;
+  text-underline-offset: 0.25em;
+  transition: color 160ms ease;
+
+  &:hover {
+    color: var(--okkly-text-primary);
+  }
+
+  @media (prefers-reduced-motion: reduce) {
+    transition: none;
+  }
+}
+
+.icon {
+  color: var(--okkly-text-muted);
+  @include m.icon-button(2rem, var(--app-radius-sm));
+
+  &:hover {
+    color: var(--okkly-text-primary);
+  }
+}

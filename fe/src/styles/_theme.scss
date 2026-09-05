@@ -1,0 +1,86 @@
+// Light palette and light sky, ported from `apps/profile/src/styles/tokens.scss` and
+// `globals.scss`. The values are the Figma Color collection's Light mode (mirrored in
+// `packages/figma-plugin/src/tokens/colors.ts`), so all three stay in lockstep.
+//
+// Kept per app, as the profile app does, rather than taught to `@okkly/design-system`:
+// the component library ships one palette on purpose. If a third app needs this, that is
+// the moment to promote these two mixins into a shared partial.
+
+@mixin light-tokens {
+  --okkly-accent-primary: #0f9e82;
+  --okkly-accent-secondary: #5b63e6;
+  --okkly-accent-dante: #e01e6e;
+  --okkly-accent-violet: #7c3aed;
+  --okkly-accent-ember: #ea580c;
+  --okkly-accent-ice: #0891b2;
+  --okkly-accent-contrast: #ffffff;
+
+  --okkly-text-primary: #0b0b0f;
+  --okkly-text-secondary: #3f3f46;
+  --okkly-text-muted: #71717a;
+
+  --okkly-bg-surface: #ffffff;
+  --okkly-bg-surface-raised: #f4f4f6;
+  --okkly-bg-inset: #f0f0f3;
+  --okkly-bg-canvas: #fbfbfc;
+
+  --okkly-border-subtle: rgba(18, 18, 24, 0.06);
+  --okkly-border-default: rgba(18, 18, 24, 0.1);
+  --okkly-border-strong: rgba(18, 18, 24, 0.2);
+
+  --okkly-feedback-success: #16a34a;
+  --okkly-feedback-warning: #d97706;
+  --okkly-feedback-danger: #e11d48;
+
+  --okkly-glass-fill: rgba(11, 11, 15, 0.08);
+  --okkly-glass-fill-strong: rgba(11, 11, 15, 0.1);
+  --okkly-glass-border: rgba(18, 18, 24, 0.08);
+
+  // App-level tokens that encode a *direction of light*, not a colour, so they cannot
+  // simply be recoloured. A white specular edge is invisible on a white panel: on a light
+  // surface the edge that conveys thickness is a faint dark line instead.
+  --app-glass-highlight: rgb(18 18 24 / 6%);
+  --app-chrome-shadow: 0 -12px 32px -16px rgb(18 18 24 / 18%);
+  --app-shadow-header: 0 0.5rem 1.5rem -0.5rem rgb(18 18 24 / 12%);
+}
+
+// AnimatedBackground is authored for a dark sky (`mix-blend-mode: screen`, black scrim,
+// white stars). Light theme retunes the same scene: multiply washes, a pale base, and the
+// night-only layers muted out.
+@mixin light-scene {
+  --okkly-animated-background-base: #fbfbfc;
+  --okkly-animated-background-glow: #eef2f8;
+  --okkly-animated-background-n1: #0f9e82;
+  --okkly-animated-background-n2: #5b63e6;
+  --okkly-animated-background-n3: #e01e6e;
+  --okkly-animated-background-n4: #7c3aed;
+  --okkly-animated-background-n5: #0f9e82;
+  --okkly-animated-background-star: #5b63e6;
+  --okkly-animated-background-star-alpha: 0;
+  --okkly-animated-background-nebula-alpha: 0.48;
+  --okkly-animated-background-grain-alpha: 0.035;
+  --okkly-animated-background-bloom-alpha: 0;
+
+  .okkly-animated-background__cloud {
+    mix-blend-mode: multiply;
+  }
+
+  .okkly-animated-background__beacon,
+  .okkly-animated-background__sparkle,
+  .okkly-animated-background__spark,
+  .okkly-animated-background__spoke-body {
+    animation: none;
+    opacity: 0;
+  }
+
+  .okkly-animated-background__scrim {
+    background:
+      radial-gradient(120% 80% at 50% 0%, rgb(251 251 252 / 0%) 40%, rgb(251 251 252 / 42%) 100%),
+      linear-gradient(
+        90deg,
+        rgb(251 251 252 / 78%) 0%,
+        rgb(251 251 252 / 52%) 45%,
+        rgb(251 251 252 / 12%) 100%
+      );
+  }
+}

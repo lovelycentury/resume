@@ -1,0 +1,9 @@
+node_modules
+dist
+build
+coverage
+.mastra
+pnpm-lock.yaml
+*.min.js
+*.min.css
+be/knowledge

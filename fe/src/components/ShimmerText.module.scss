@@ -1,0 +1,47 @@
+// The sweep is a gradient painted through the glyphs (`background-clip: text`) and moved
+// across them, not an overlay — so it follows the text however it wraps, and costs one
+// compositor-friendly background-position animation.
+.root {
+  // Wider than the box so there is gradient left to travel through.
+  background: linear-gradient(
+    100deg,
+    var(--okkly-text-muted) 0%,
+    var(--okkly-text-muted) 35%,
+    var(--okkly-text-primary) 50%,
+    var(--okkly-text-muted) 65%,
+    var(--okkly-text-muted) 100%
+  );
+  background-size: 250% 100%;
+  color: var(--okkly-text-muted);
+}
+
+// `color: transparent` is only safe once the gradient is actually painted into the
+// glyphs; without this guard a browser that cannot clip the background would render the
+// label invisible rather than merely un-animated.
+@supports (background-clip: text) or (-webkit-background-clip: text) {
+  .root {
+    background-clip: text;
+    -webkit-background-clip: text;
+    color: transparent;
+    animation: shimmer 1.9s linear infinite;
+  }
+}
+
+@keyframes shimmer {
+  from {
+    background-position: 150% 0;
+  }
+
+  to {
+    background-position: -50% 0;
+  }
+}
+
+// A loop that never ends is exactly what this setting is about; the label stays, still.
+@media (prefers-reduced-motion: reduce) {
+  .root {
+    animation: none;
+    background: none;
+    color: var(--okkly-text-secondary);
+  }
+}

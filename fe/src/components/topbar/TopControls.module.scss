@@ -1,0 +1,113 @@
+@use "../../styles/glass";
+
+.root {
+  flex: 0 0 auto;
+  display: flex;
+  justify-content: flex-end;
+  align-items: center;
+  gap: 8px;
+  padding: 12px var(--app-gutter) 0;
+}
+
+// Same material as the sidebar and the composer bar — these sit over the drifting
+// background too, and reading as solid chips there would break the surface.
+.control {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 6px;
+  height: 34px;
+  padding: 0 10px;
+  border: 1px solid var(--okkly-border-subtle);
+  border-radius: 10px;
+  color: var(--okkly-text-secondary);
+  font: inherit;
+  cursor: pointer;
+  transition:
+    border-color 0.15s ease,
+    color 0.15s ease;
+
+  @include glass.material(
+    color-mix(in srgb, var(--okkly-bg-surface) 55%, transparent),
+    var(--okkly-bg-surface),
+    18px
+  );
+}
+
+.control:hover:not(:disabled),
+.control:focus-visible {
+  border-color: var(--okkly-border-strong);
+  color: var(--okkly-text-primary);
+}
+
+.control:disabled {
+  opacity: 0.45;
+  cursor: default;
+}
+
+.iconOnly {
+  width: 34px;
+  padding: 0;
+}
+
+.code {
+  font-size: 0.8125rem;
+  font-weight: 500;
+  letter-spacing: 0.02em;
+}
+
+// Narrower than the model picker's panel: four rows of a code plus one word need far
+// less room than a paragraph of model description.
+.paper {
+  --okkly-popover-max-width: min(13rem, calc(100vw - 2rem));
+  --okkly-popover-padding: 0.375rem;
+}
+
+.menu {
+  width: 100%;
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+}
+
+.option {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  width: 100%;
+  padding: 8px 10px;
+  border: none;
+  border-radius: 10px;
+  background: transparent;
+  color: var(--okkly-text-primary);
+  font: inherit;
+  font-size: 0.875rem;
+  text-align: left;
+  cursor: pointer;
+  transition: background 0.12s ease;
+}
+
+.option:hover,
+.option:focus-visible {
+  background: var(--okkly-glass-fill);
+}
+
+.optionCode {
+  flex: 0 0 auto;
+  width: 2.25em;
+  color: var(--okkly-text-muted);
+  font-size: 0.75rem;
+  font-weight: 500;
+  letter-spacing: 0.04em;
+}
+
+.optionLabel {
+  flex: 1 1 auto;
+  min-width: 0;
+}
+
+@media (max-width: 900px) {
+  .root {
+    padding: 10px 16px 0;
+  }
+}

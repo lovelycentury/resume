@@ -1,0 +1,194 @@
+@use "styles/kit" as m;
+
+.root {
+  position: fixed;
+  z-index: 45;
+
+  // Edge placements are full-bleed drawers: no gutter, flush with the viewport
+  // edge. Only the corner placements upstream also supports stay floating
+  // cards, and those keep their inset.
+  &[data-position="bottom"] {
+    inset-inline: 0;
+    bottom: 0;
+  }
+
+  &[data-position="top"] {
+    inset-inline: 0;
+    top: 0;
+  }
+
+  &[data-position="bottom-left"],
+  &[data-position="bottom-right"] {
+    bottom: 0;
+    max-width: 32rem;
+    padding: var(--app-gutter);
+    padding-bottom: max(var(--app-gutter), env(safe-area-inset-bottom));
+  }
+
+  &[data-position="bottom-left"] {
+    left: 0;
+  }
+
+  &[data-position="bottom-right"] {
+    right: 0;
+  }
+}
+
+.panel {
+  padding: 1.25rem;
+  border: 1px solid var(--okkly-glass-border);
+  border-radius: var(--app-radius-lg);
+  // Not the 8% glass fill the rest of the page uses: the aurora drifts behind
+  // this panel, and a consent notice has to stay legible wherever it happens
+  // to be bright. Blur and shadow keep it in the same visual family.
+  background: color-mix(in srgb, var(--okkly-bg-surface) 92%, transparent);
+  box-shadow: var(--app-shadow-header);
+  backdrop-filter: blur(18px);
+  animation: enter 260ms ease-out both;
+
+  @media (prefers-reduced-motion: reduce) {
+    animation: none;
+  }
+}
+
+// Drawer treatment for the two edge placements: the surface runs the full width
+// and only the inner edge is rounded, so it reads as attached to the viewport
+// rather than floating above it.
+.root[data-position="bottom"] .panel,
+.root[data-position="top"] .panel {
+  border-inline: 0;
+  // The page gutter moves onto the surface so `.inner` can line the copy up
+  // with the site's content column.
+  padding-inline: var(--app-gutter);
+  animation-name: slide;
+}
+
+.root[data-position="bottom"] .panel {
+  border-bottom: 0;
+  border-radius: var(--app-radius-lg) var(--app-radius-lg) 0 0;
+  // Home-indicator room on iOS, in addition to the panel's own padding.
+  padding-bottom: calc(1.25rem + env(safe-area-inset-bottom));
+}
+
+.root[data-position="top"] .panel {
+  border-top: 0;
+  border-radius: 0 0 var(--app-radius-lg) var(--app-radius-lg);
+  padding-top: calc(1.25rem + env(safe-area-inset-top));
+  animation-name: slide-down;
+}
+
+.inner {
+  display: flex;
+  width: 100%;
+  max-width: var(--app-content-width);
+  flex-direction: column;
+  margin-inline: auto;
+  gap: 1.25rem;
+
+  @include m.screen(min, md) {
+    flex-direction: row;
+    align-items: center;
+    justify-content: space-between;
+  }
+}
+
+.copy {
+  display: flex;
+  align-items: flex-start;
+  gap: 0.875rem;
+}
+
+.glyph {
+  display: inline-flex;
+  width: 2.25rem;
+  height: 2.25rem;
+  flex-shrink: 0;
+  align-items: center;
+  justify-content: center;
+  border-radius: 50%;
+  background: color-mix(in srgb, var(--okkly-accent-primary) 14%, transparent);
+  color: var(--okkly-accent-primary);
+}
+
+.text {
+  display: flex;
+  flex-direction: column;
+  gap: 0.25rem;
+}
+
+.title {
+  margin: 0;
+  color: var(--okkly-text-primary);
+  font-weight: 600;
+  @include m.type(label-md);
+}
+
+.body {
+  max-width: 46ch;
+  margin: 0;
+  color: var(--okkly-text-secondary);
+  @include m.type(body-sm);
+}
+
+.link {
+  color: var(--okkly-accent-primary);
+  text-decoration: underline;
+  text-underline-offset: 0.25em;
+}
+
+.actions {
+  // Narrow boards get a deliberate grid instead of wrapping flex, so Reject and
+  // Accept always land side by side at the same width — the "equally easy to
+  // refuse" rule is a layout property, not just a styling one.
+  display: grid;
+  gap: 0.5rem;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+
+  > *:first-child {
+    grid-column: 1 / -1;
+  }
+
+  @include m.screen(min, sm) {
+    display: flex;
+    align-items: center;
+    flex-shrink: 0;
+
+    > *:first-child {
+      grid-column: auto;
+    }
+  }
+}
+
+// Floating cards fade up a little; the drawer travels its own full height so it
+// arrives from off-screen with no gap behind it.
+@keyframes enter {
+  from {
+    opacity: 0;
+    translate: 0 1.5rem;
+  }
+
+  to {
+    opacity: 1;
+    translate: 0 0;
+  }
+}
+
+@keyframes slide {
+  from {
+    translate: 0 100%;
+  }
+
+  to {
+    translate: 0 0;
+  }
+}
+
+@keyframes slide-down {
+  from {
+    translate: 0 -100%;
+  }
+
+  to {
+    translate: 0 0;
+  }
+}

@@ -1,0 +1,21 @@
+// Flat indigo tile, dark glyph knocked out of it. Not the avatar's mint: that one labels
+// the person, this one labels the assistant answering about him.
+.root {
+  --agent-mark-size: 26px;
+
+  display: grid;
+  place-items: center;
+  flex: 0 0 auto;
+  width: var(--agent-mark-size);
+  height: var(--agent-mark-size);
+  // Proportional so the corner keeps its softness at every size it is used at.
+  border-radius: calc(var(--agent-mark-size) * 0.3);
+  background: var(--okkly-accent-secondary);
+  color: var(--okkly-accent-contrast);
+}
+
+.glyph {
+  display: block;
+  width: 62%;
+  height: 62%;
+}
