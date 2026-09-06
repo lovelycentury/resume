@@ -1,0 +1,76 @@
+name: ingest
+
+# Fills the vector index on the VPS from the knowledge base kept on WebDAV.
+#
+# `knowledge/*.md` is private input that never enters git or an image (see
+# be/knowledge/.gitignore), so it is fetched into the runner at run time,
+# embedded there, and written straight into the libSQL index on the server.
+# The runner is ephemeral; nothing is uploaded as an artifact.
+#
+# The two steps are `tools/fetch-knowledge.mjs` and `tools/ingest-remote.mjs`
+# — both plain node, both runnable by hand (`pnpm knowledge:fetch`,
+# `pnpm ingest:remote`), so this file stays a list of inputs rather than logic.
+#
+# Run it after editing a file on WebDAV — the deploy workflow does not touch
+# the index, and the index survives redeploys.
+#
+# Repository secrets
+#   WEBDAV_USER / WEBDAV_PASSWORD   Basic auth for the WebDAV host; omit both if it needs none
+#   GOOGLE_GENERATIVE_AI_API_KEY    required — the embedding model
+#   VPS_HOST / VPS_USER / VPS_SSH_KEY   same three the deploy workflow uses
+#
+# Repository variables (optional, defaults below)
+#   WEBDAV_BASE_URL   directory holding the markdown files
+#   API_BASE_URL      public backend origin, used for the post-run check
+on:
+  workflow_dispatch:
+    inputs:
+      files:
+        description: "Space-separated file names to fetch from WEBDAV_BASE_URL"
+        required: true
+        default: "cv.md personal.md"
+
+# Ingest drops the index before rebuilding it, so two concurrent runs would
+# leave the site answering "I don't know" for as long as they overlap.
+concurrency:
+  group: ingest
+  cancel-in-progress: false
+
+permissions:
+  contents: read
+
+jobs:
+  ingest:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - run: corepack enable
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+          cache: pnpm
+
+      # Only the backend workspace — the SPA is irrelevant here.
+      - run: pnpm install --frozen-lockfile --filter @okkly/resume-be
+
+      - name: Fetch the knowledge base from WebDAV
+        env:
+          WEBDAV_BASE_URL: ${{ secrets.WEBDAV_BASE_URL || 'https://webdav.okryshto.dev/knowledge/resume' }}
+          WEBDAV_USER: ${{ secrets.WEBDAV_USER }}
+          WEBDAV_PASSWORD: ${{ secrets.WEBDAV_PASSWORD }}
+          # Through the environment, not the command line: a dispatch input
+          # interpolated into a `run:` string would be a shell injection.
+          KNOWLEDGE_FILES: ${{ inputs.files }}
+        run: node tools/fetch-knowledge.mjs
+
+      # libSQL is published on the VPS loopback only, so the script tunnels in
+      # with the deploy key and checks /status once the index is rebuilt.
+      - name: Ingest into the VPS index
+        env:
+          GOOGLE_GENERATIVE_AI_API_KEY: ${{ secrets.GOOGLE_GENERATIVE_AI_API_KEY }}
+          VPS_HOST: ${{ secrets.VPS_HOST }}
+          VPS_USER: ${{ secrets.VPS_USER }}
+          VPS_SSH_KEY: ${{ secrets.VPS_SSH_KEY }}
+          API_BASE_URL: ${{ vars.API_BASE_URL || 'https://resume-api.okryshto.dev' }}
+        run: node tools/ingest-remote.mjs

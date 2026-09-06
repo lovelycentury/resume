@@ -12,6 +12,8 @@
     "format": "prettier --write .",
     "format:check": "prettier --check .",
     "commit": "gitmoji --commit",
+    "knowledge:fetch": "node tools/fetch-knowledge.mjs",
+    "ingest:remote": "node tools/ingest-remote.mjs",
     "prepare": "simple-git-hooks"
   },
   "devDependencies": {

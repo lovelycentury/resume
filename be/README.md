@@ -116,6 +116,20 @@ drops and rebuilds the index each time — editing a file changes chunk boundari
 in-place upsert would leave orphaned chunks that still match queries and get cited as
 fact.
 
+The deployed site keeps its copy of the knowledge base on WebDAV rather than in this
+repo. To rebuild the production index, edit the file there and run the **ingest**
+workflow (`.github/workflows/ingest.yml`) by hand from the Actions tab: it downloads the
+markdown into the runner, tunnels to the libSQL on the VPS, and embeds. Deploys do not
+touch the index — it outlives them.
+
+That workflow is two node scripts, usable from a laptop as well:
+
+```bash
+WEBDAV_BASE_URL=… WEBDAV_USER=… WEBDAV_PASSWORD=… \
+  pnpm knowledge:fetch cv.md personal.md   # WebDAV -> be/knowledge/
+VPS_HOST=… VPS_USER=… pnpm ingest:remote   # tunnel + ingest against the VPS index
+```
+
 Structure files with headings. Each section becomes a chunk carrying its heading
 breadcrumb, so a passage under "Experience > <Company>" still matches "where did they
 work in 2023?" even though the employer name appears only in the heading.

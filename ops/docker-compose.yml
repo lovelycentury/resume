@@ -24,12 +24,20 @@
 #   docker compose logs -f
 #
 # Filling the vector index: the runtime image carries no sources or `tsx`, so
-# ingest does not run here. `knowledge/*.md` is gitignored and lives on your
-# laptop anyway, so run it from there through an SSH tunnel — libsql is
-# published on loopback only for exactly this:
+# ingest does not run here, and `knowledge/*.md` is gitignored and never
+# reaches the server. The index is written from outside, over a tunnel into
+# the loopback-only libsql below — which is the whole reason it is published
+# on 127.0.0.1 at all. Two ways in:
 #
-#   ssh -N -L 8080:127.0.0.1:8080 user@vps
-#   cd be && VECTOR_DB_URL=http://127.0.0.1:8080 pnpm ingest
+#   - The `ingest` workflow (.github/workflows/ingest.yml), run by hand from
+#     the Actions tab. It pulls the markdown from WebDAV, opens the same
+#     tunnel from the runner, and embeds. This is the normal path.
+#   - From the laptop, against the local copy of the knowledge base:
+#       ssh -N -L 8080:127.0.0.1:8080 user@vps
+#       cd be && VECTOR_DB_URL=http://127.0.0.1:8080 pnpm ingest
+#
+# The index lives in the libsql_data volume and survives a redeploy, so this
+# is only needed when the knowledge base itself changes.
 
 name: resume
 
