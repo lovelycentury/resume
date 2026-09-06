@@ -1,6 +1,5 @@
 # Dev environment — run once, then edit and it hot-reloads.
 #
-#   cd apps/resume
 #   cp be/.env.example be/.env                              # fill GOOGLE_GENERATIVE_AI_API_KEY
 #   cp be/knowledge/cv.example.md       be/knowledge/cv.md   # your real content (gitignored)
 #   cp be/knowledge/personal.example.md be/knowledge/personal.md
@@ -61,7 +60,8 @@ services:
   be:
     build:
       context: .
-      dockerfile: Dockerfile.dev
+      dockerfile: be/Dockerfile
+      target: dev
     working_dir: /repo
     command: pnpm --filter @okkly/resume-be dev
     env_file:
@@ -92,7 +92,8 @@ services:
   fe:
     build:
       context: .
-      dockerfile: Dockerfile.dev
+      dockerfile: fe/Dockerfile
+      target: dev
     working_dir: /repo
     command: pnpm --filter @okkly/resume-fe dev
     environment:
@@ -117,7 +118,8 @@ services:
     profiles: ["ingest"]
     build:
       context: .
-      dockerfile: Dockerfile.dev
+      dockerfile: be/Dockerfile
+      target: dev
     working_dir: /repo
     command: pnpm --filter @okkly/resume-be ingest
     env_file:

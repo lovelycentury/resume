@@ -1,0 +1,128 @@
+# VPS stack: libSQL vector store + the RAG backend + the SPA.
+#
+# The two compose files in the repo root are for the laptop (a local run and a
+# hot-reload dev env). This one is what ships to the server: images come from
+# ghcr.io instead of being built, and nothing is published to the internet —
+# Caddy in ~/vps-infra owns 80/443 and proxies over the shared network:
+#
+#   vps-infra/Caddyfile → resume.okryshto.dev     → resume-fe:80
+#                       → resume-api.okryshto.dev → resume-be:5300
+#
+# Split origins, so resume-be answers with CORS for the fe host and the fe
+# image was built with VITE_API_BASE_URL pointing back at the api host.
+#
+# Secrets live in a `.env` next to this file, on the server only:
+#   GOOGLE_GENERATIVE_AI_API_KEY=...   required; chat default + embeddings
+#   GROQ_API_KEY / OPENROUTER_API_KEY / OLLAMA_API_KEY   optional
+#
+#   docker compose up -d --pull always --remove-orphans
+#   docker compose logs -f
+#
+# Filling the vector index: the runtime image carries no sources or `tsx`, so
+# ingest does not run here. `knowledge/*.md` is gitignored and lives on your
+# laptop anyway, so run it from there through an SSH tunnel — libsql is
+# published on loopback only for exactly this:
+#
+#   ssh -N -L 8080:127.0.0.1:8080 user@vps
+#   cd be && VECTOR_DB_URL=http://127.0.0.1:8080 pnpm ingest
+
+name: resume
+
+networks:
+  vps-infra:
+    external: true
+    name: vps-infra_default
+  resume:
+
+volumes:
+  libsql_data: # vector index, served by the libsql container
+  storage_data: # conversation state, an embedded file in resume-be
+
+x-logging: &logging
+  logging:
+    driver: json-file
+    options:
+      max-size: "10m"
+      max-file: "3"
+
+services:
+  # Holds only the vector index. Conversation state stays on the embedded
+  # driver: the server's hrana protocol fails @mastra/libsql's parallel schema
+  # init with SQLITE_SCHEMA on first boot, and only that path does parallel DDL.
+  libsql:
+    image: ghcr.io/tursodatabase/libsql-server:v0.24.32
+    container_name: resume-libsql
+    restart: unless-stopped
+    environment:
+      SQLD_NODE: primary
+    volumes:
+      - libsql_data:/var/lib/sqld
+    ports:
+      # Loopback only — never reachable from the internet. This is the tunnel
+      # endpoint the ingest command above connects to.
+      - "127.0.0.1:8080:8080"
+    healthcheck:
+      # The image has no wget/curl/nc — bash /dev/tcp instead.
+      test:
+        [
+          "CMD-SHELL",
+          "bash -c 'exec 3<>/dev/tcp/127.0.0.1/8080; printf \"GET /health HTTP/1.1\\r\\nHost: x\\r\\nConnection: close\\r\\n\\r\\n\" >&3; grep -q \"200 OK\" <&3'",
+        ]
+      interval: 10s
+      timeout: 3s
+      retries: 5
+      start_period: 10s
+    networks: [resume]
+    <<: *logging
+
+  resume-be:
+    image: ghcr.io/lovelycentury/resume/be:latest
+    container_name: resume-be
+    restart: unless-stopped
+    env_file:
+      - path: ./.env
+        required: false
+    environment:
+      NODE_ENV: production
+      PORT: "5300"
+      VECTOR_DB_URL: http://libsql:8080
+      STORAGE_DB_URL: file:/app/data/resume-storage.db
+      # Must match the origin the SPA is served from, or the browser blocks it.
+      CORS_ORIGINS: https://resume.okryshto.dev
+      # Caddy sets X-Forwarded-For, so the per-IP chat rate limit sees the real
+      # client instead of counting the whole internet as one proxy address.
+      TRUST_PROXY: "true"
+    volumes:
+      - storage_data:/app/data
+    depends_on:
+      libsql:
+        condition: service_healthy
+    healthcheck:
+      # /models needs neither the vector store nor a real API key, so this goes
+      # green as soon as the HTTP server is up.
+      test:
+        [
+          "CMD",
+          "node",
+          "-e",
+          "fetch('http://127.0.0.1:5300/models').then(r=>process.exit(r.ok?0:1)).catch(()=>process.exit(1))",
+        ]
+      interval: 30s
+      timeout: 5s
+      retries: 3
+      start_period: 15s
+    networks: [vps-infra, resume]
+    <<: *logging
+
+  resume-fe:
+    image: ghcr.io/lovelycentury/resume/fe:latest
+    container_name: resume-fe
+    restart: unless-stopped
+    networks: [vps-infra]
+    healthcheck:
+      test: ["CMD", "wget", "-qO-", "http://localhost/healthz"]
+      interval: 30s
+      timeout: 3s
+      retries: 3
+      start_period: 5s
+    <<: *logging

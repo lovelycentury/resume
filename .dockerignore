@@ -1,0 +1,24 @@
+# Build context is the repo root for both be/Dockerfile and fe/Dockerfile.
+# node_modules, build output and .mastra are all regenerated inside the image;
+# .env holds secrets and is supplied at runtime, never baked in.
+**/node_modules
+**/dist
+**/.mastra
+**/.turbo
+**/*.tsbuildinfo
+**/coverage
+
+**/.env
+**/.env.*
+!**/.env.example
+
+.git
+.gitignore
+**/*.log
+**/.DS_Store
+**/README.md
+**/AGENTS.md
+Dockerfile*
+**/Dockerfile*
+.dockerignore
+docker-compose*.yml

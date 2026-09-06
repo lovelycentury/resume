@@ -4,7 +4,6 @@
 # embedded `file:` database the app defaults to. `src/rag/vector-store.ts` needs
 # no change — only the URL, set below to http://libsql:8080.
 #
-#   cd apps/resume
 #   cp be/.env.example be/.env                          # fill GOOGLE_GENERATIVE_AI_API_KEY
 #   cp be/knowledge/cv.example.md       be/knowledge/cv.md         # your real content,
 #   cp be/knowledge/personal.example.md be/knowledge/personal.md   # both gitignored

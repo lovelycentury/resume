@@ -4,7 +4,7 @@
 #
 # Build context is the MONOREPO ROOT, not this directory — the build runs a
 # pnpm-workspace install and needs the root lockfile + workspace manifest.
-# The compose file that references this sets `context: ../..` accordingly:
+# Both compose files set `context: .` accordingly:
 #
 #   docker build -f be/Dockerfile -t resume-be .   # from repo root
 #
@@ -14,9 +14,12 @@
 # actually imports. We `npm ci` from that lockfile in a linux stage so the
 # native `libsql` binary matches the container, then ship just that.
 #
-# The `build` stage is also reused as the `ingest` service in
-# apps/resume/docker-compose.yml (it keeps the source + devDependencies, so
-# `tsx src/scripts/ingest.ts` can run there).
+# Targets, all three used by the compose files:
+#   dev      sources + full workspace install (devDeps). docker-compose.dev.yml
+#            runs `mastra dev` here and bind-mounts src over it, so edits reload.
+#   build    dev + the production bundle. Reused as the `ingest` service in
+#            docker-compose.yml — it still has the sources and `tsx`.
+#   runtime  the shipped image: just the bundle.
 #
 # Runtime env (supplied by compose / `docker run` — the image bakes in none):
 #   GOOGLE_GENERATIVE_AI_API_KEY   required; chat default + embeddings. Boot fails without it.
@@ -40,10 +43,15 @@ COPY package.json pnpm-lock.yaml pnpm-workspace.yaml ./
 RUN --mount=type=cache,id=pnpm-store,target=/pnpm/store \
     pnpm fetch
 
-FROM deps AS build
+# Sources + the whole workspace installed, devDependencies included. Stopping
+# here (`target: dev`) gives docker-compose.dev.yml an image with the `mastra`
+# CLI and `tsx` on hand; nothing app-specific is built yet.
+FROM deps AS dev
 COPY . .
 RUN --mount=type=cache,id=pnpm-store,target=/pnpm/store \
     pnpm install --frozen-lockfile --prefer-offline
+
+FROM dev AS build
 RUN pnpm --filter "@okkly/resume-be" run build
 # Install the bundle's own runtime deps against its deploy lockfile. Runs in this
 # linux stage so `libsql`'s prebuilt binary is linux/glibc, not the build host's.
