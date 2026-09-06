@@ -10,11 +10,18 @@
     "typecheck": "pnpm -r run typecheck",
     "lint": "oxlint",
     "format": "prettier --write .",
-    "format:check": "prettier --check ."
+    "format:check": "prettier --check .",
+    "commit": "gitmoji --commit",
+    "prepare": "simple-git-hooks"
   },
   "devDependencies": {
+    "gitmoji-cli": "^9.7.0",
     "oxlint": "1.77.0",
-    "prettier": "^3.4.2"
+    "prettier": "^3.4.2",
+    "simple-git-hooks": "^2.14.0"
+  },
+  "simple-git-hooks": {
+    "commit-msg": "node tools/check-commit-msg.mjs $1"
   },
   "engines": {
     "node": ">=22.13"
