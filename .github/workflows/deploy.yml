@@ -7,7 +7,21 @@ permissions:
   contents: read
   packages: write
 
-# Repository secrets: VPS_HOST, VPS_USER, VPS_SSH_KEY, DEPLOY_PATH.
+# Repository secrets
+#
+#   Infra (required)
+#     VPS_HOST      server hostname/IP for ssh + scp
+#     VPS_USER      ssh user; must be in the `docker` group
+#     VPS_SSH_KEY   private key (PEM), whose public half is in the user's authorized_keys
+#     DEPLOY_PATH   directory on the server holding docker-compose.yml and the generated .env
+#
+#   Backend runtime (written into ${DEPLOY_PATH}/.env by the deploy job)
+#     GOOGLE_GENERATIVE_AI_API_KEY   required — chat default *and* embeddings
+#     GROQ_API_KEY                   optional — unlocks the groq models in /models
+#     OPENROUTER_API_KEY             optional — unlocks the openrouter models
+#     OLLAMA_API_KEY                 optional — unlocks the hosted ollama models
+#
+# Everything non-secret (ports, db urls, CORS origins) stays in ops/docker-compose.yml.
 # The VPS must be logged in to ghcr.io (or the packages made public) so that
 # `docker compose pull` can fetch both images.
 jobs:
@@ -54,12 +68,45 @@ jobs:
           source: "ops/docker-compose.yml"
           target: ${{ secrets.DEPLOY_PATH }}
           strip_components: 1 # drop the ops/ prefix
-      - uses: appleboy/ssh-action@v1.2.0
+
+      # The provider keys never touch the repo or the image: they travel as ssh
+      # env vars and land in a 0600 `.env` next to the compose file, which
+      # `resume-be` reads through `env_file`. Rewritten on every deploy, so
+      # rotating a key in GitHub only needs a re-run.
+      - name: Write .env and restart the stack
+        uses: appleboy/ssh-action@v1.2.0
+        env:
+          GOOGLE_GENERATIVE_AI_API_KEY: ${{ secrets.GOOGLE_GENERATIVE_AI_API_KEY }}
+          GROQ_API_KEY: ${{ secrets.GROQ_API_KEY }}
+          OPENROUTER_API_KEY: ${{ secrets.OPENROUTER_API_KEY }}
+          OLLAMA_API_KEY: ${{ secrets.OLLAMA_API_KEY }}
         with:
           host: ${{ secrets.VPS_HOST }}
           username: ${{ secrets.VPS_USER }}
           key: ${{ secrets.VPS_SSH_KEY }}
+          envs: GOOGLE_GENERATIVE_AI_API_KEY,GROQ_API_KEY,OPENROUTER_API_KEY,OLLAMA_API_KEY
           script: |
+            set -euo pipefail
             cd ${{ secrets.DEPLOY_PATH }}
+
+            if [ -z "${GOOGLE_GENERATIVE_AI_API_KEY:-}" ]; then
+              echo "GOOGLE_GENERATIVE_AI_API_KEY secret is empty — resume-be would not boot." >&2
+              exit 1
+            fi
+
+            # Written first, moved into place last, so a failure here never leaves
+            # a half-written .env behind.
+            umask 077
+            : > .env.tmp
+            add_var() {
+              # Unset optional keys are skipped rather than written blank.
+              if [ -n "${2:-}" ]; then printf '%s=%s\n' "$1" "$2" >> .env.tmp; fi
+            }
+            add_var GOOGLE_GENERATIVE_AI_API_KEY "${GOOGLE_GENERATIVE_AI_API_KEY:-}"
+            add_var GROQ_API_KEY "${GROQ_API_KEY:-}"
+            add_var OPENROUTER_API_KEY "${OPENROUTER_API_KEY:-}"
+            add_var OLLAMA_API_KEY "${OLLAMA_API_KEY:-}"
+            mv .env.tmp .env
+
             docker compose pull
             docker compose up -d --remove-orphans

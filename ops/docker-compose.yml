@@ -11,9 +11,14 @@
 # Split origins, so resume-be answers with CORS for the fe host and the fe
 # image was built with VITE_API_BASE_URL pointing back at the api host.
 #
-# Secrets live in a `.env` next to this file, on the server only:
+# Secrets live in a `.env` next to this file, on the server only. The deploy
+# workflow writes it from the repository secrets of the same name before every
+# `up`, so it is never committed and never baked into an image:
 #   GOOGLE_GENERATIVE_AI_API_KEY=...   required; chat default + embeddings
 #   GROQ_API_KEY / OPENROUTER_API_KEY / OLLAMA_API_KEY   optional
+#
+# Bringing the stack up by hand on a server that has never been deployed to
+# means writing that `.env` yourself first.
 #
 #   docker compose up -d --pull always --remove-orphans
 #   docker compose logs -f
@@ -79,9 +84,11 @@ services:
     image: ghcr.io/lovelycentury/resume/be:latest
     container_name: resume-be
     restart: unless-stopped
+    # Required: without the Google key the server exits on its env check anyway,
+    # so a missing file should fail here with a clearer message.
     env_file:
       - path: ./.env
-        required: false
+        required: true
     environment:
       NODE_ENV: production
       PORT: "5300"
