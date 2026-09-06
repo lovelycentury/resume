@@ -147,13 +147,13 @@ paragraphs land in noticeably different regions of the embedding space.
 
 ## Docker
 
-Two compose files in `apps/resume/`, both with a real **libSQL server** container for the
-vector store (no code change — just `VECTOR_DB_URL=http://libsql:8080`).
+Two compose files, both with a real **libSQL server** container for the vector store (no
+code change — just `VECTOR_DB_URL=http://libsql:8080`).
 
 ### Dev — `docker-compose.dev.yml` (one command, hot reload)
 
 ```bash
-cd ..                                             # apps/resume
+cd ..                                             # repo root
 cp be/.env.example be/.env                        # fill GOOGLE_GENERATIVE_AI_API_KEY
 cp be/knowledge/cv.example.md       be/knowledge/cv.md         # your real content,
 cp be/knowledge/personal.example.md be/knowledge/personal.md   # both gitignored
@@ -161,21 +161,24 @@ docker compose -f docker-compose.dev.yml up --build
 docker compose -f docker-compose.dev.yml --profile ingest run --rm ingest
 ```
 
-`be` runs `mastra dev`, `fe` runs Vite. `apps/resume/{be,fe}/src` is bind-mounted, so
-edits there hot-reload — Vite in ~seconds, `mastra dev` in ~30–50s (its own rebundle +
-restart). Polling is on (`CHOKIDAR_USEPOLLING` / `VITE_DEV_CONTAINER`) because Docker
-Desktop doesn't forward file events across a bind mount. `node_modules` live in the image;
-adding a dependency means re-running with `--build`.
+`be` runs `mastra dev`, `fe` runs Vite. `{be,fe}/src` is bind-mounted, so edits there
+hot-reload — Vite in ~seconds, `mastra dev` in ~30–50s (its own rebundle + restart).
+Polling is on (`CHOKIDAR_USEPOLLING` / `VITE_DEV_CONTAINER`) because Docker Desktop
+doesn't forward file events across a bind mount. `node_modules` live in the image; adding
+a dependency means re-running with `--build`.
 
-### Prod-shaped — `docker-compose.yml`
+Both services build from the app Dockerfiles' `dev` stage — there is no separate dev
+image.
 
-```bash
-docker compose up -d --build
-docker compose --profile ingest run --rm ingest
-```
+### Deploy — `ops/docker-compose.yml`
 
-`Dockerfile`'s `runtime` stage is the slim server image; its `build` stage doubles as the
-`ingest` service.
+The VPS stack. Images come from ghcr instead of being built, nothing is published to the
+internet, and both containers join `vps-infra_default` so the root Caddy reaches them as
+`resume-be:5300` and `resume-fe:80`. Shipped by `.github/workflows/deploy.yml`.
+
+Ingest does not run there: the `runtime` stage carries no sources and no `tsx`, and
+`knowledge/*.md` is gitignored anyway. libSQL is published on loopback only so you can
+fill the index from your machine through an SSH tunnel — see the file header.
 
 ### Why storage isn't on the libSQL server
 
