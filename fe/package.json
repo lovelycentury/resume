@@ -12,9 +12,9 @@
     "lint": "oxlint"
   },
   "dependencies": {
-    "@okkly/design-system": "^0.1.0",
+    "@okkly/design-system": "^0.1.1",
     "@okkly/icons": "^0.1.0",
-    "@okkly/react": "^0.1.0",
+    "@okkly/react": "^0.1.1",
     "@tanstack/react-query": "^5.102.8",
     "ai": "~7.0.84",
     "jotai": "^2.20.3",
