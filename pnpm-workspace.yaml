@@ -12,8 +12,8 @@ allowBuilds:
   simple-git-hooks: false
 
 minimumReleaseAgeExclude:
-  - "@okkly/design-system@0.1.0"
+  - "@okkly/design-system@0.1.1"
   - "@okkly/icons@0.1.0"
-  - "@okkly/react@0.1.0"
+  - "@okkly/react@0.1.1"
   - '@okkly/helpers@0.1.0'
   - '@okkly/react-hooks@0.1.0'
