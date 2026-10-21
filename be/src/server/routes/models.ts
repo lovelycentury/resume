@@ -40,7 +40,7 @@ export const modelsRoute = registerApiRoute("/models", {
               type: "object",
               required: ["defaultModelId", "models"],
               properties: {
-                defaultModelId: { type: "string", example: "minimax-m3" },
+                defaultModelId: { type: "string", example: "gpt-oss-120b" },
                 models: { type: "array", items: modelSchema },
               },
             },

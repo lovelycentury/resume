@@ -62,8 +62,7 @@ export const MODELS = [
     id: "minimax-m3",
     name: "MiniMax M3",
     description:
-      "Strong general-purpose model with a 1M-token context. The default here, via " +
-      "OpenRouter's free tier.",
+      "Strong general-purpose model with a 1M-token context, via OpenRouter's free tier.",
     provider: "openrouter",
     providerModel: "minimax/minimax-m3:free",
     contextWindow: 1_048_576,

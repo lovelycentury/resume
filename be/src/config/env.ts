@@ -39,7 +39,7 @@ const envSchema = z.object({
   STORAGE_DB_AUTH_TOKEN: blankAsUndefined(z.string().min(1).optional()),
 
   /** Default model id served when a request does not pick one. Validated against MODELS. */
-  DEFAULT_MODEL_ID: blankAsUndefined(z.string().default("minimax-m3")),
+  DEFAULT_MODEL_ID: blankAsUndefined(z.string().default("gpt-oss-120b")),
 
   /**
    * Requests one IP may make to `/chat` per minute. The endpoint is public and every

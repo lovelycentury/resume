@@ -54,7 +54,7 @@ so the picker can disable it instead of failing on send.
 
 ```json
 {
-  "defaultModelId": "minimax-m3",
+  "defaultModelId": "gpt-oss-120b",
   "models": [
     {
       "id": "gemini-3.6-flash",
